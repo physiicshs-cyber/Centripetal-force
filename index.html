@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f9fc">
+<title>向心力を探せ！｜ベクトル合成・合力強調</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:#18283d;background:#f7f9fc;font-size:15px;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}button,select,input{font:inherit}button{cursor:pointer}.wrap{max-width:1510px;margin:auto;padding:24px 28px 52px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:14px}.brand-logo{display:grid;place-items:center;background:#173f69;color:white;width:48px;height:48px;border-radius:15px;box-shadow:0 7px 18px #1c508522;font-size:24px}.eyebrow{font-size:11px;letter-spacing:.14em;color:#52718f;font-weight:800}.brand h1{font-size:25px;letter-spacing:-.05em;margin:1px 0 0}.brand p{font-size:12px;color:#6a7b8f;margin:0}.header-note{padding:10px 13px;background:#eaf2fa;color:#345e89;border-radius:10px;font-size:12px;font-weight:650}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:18px}.tab{border:1px solid #d9e3ec;background:white;color:#41536a;border-radius:13px;padding:13px 9px;display:flex;align-items:center;justify-content:center;gap:7px;min-height:55px;font-size:13px;font-weight:700;transition:background .16s,border .16s,transform .16s}.tab .num{background:#edf2f8;color:#58718b;border-radius:7px;padding:4px 7px;font-size:11px}.tab.active{background:#173f69;color:white;border-color:#173f69;box-shadow:0 5px 16px #173f6927}.tab.active .num{background:#ffffff24;color:#fff}.tab:not(.active):hover{border-color:#7da0c2;transform:translateY(-1px)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}.left{min-width:0;display:flex;flex-direction:column;gap:15px}.right{display:flex;flex-direction:column;gap:14px}.panel{border:1px solid #e0e8ef;background:#fff;border-radius:18px;box-shadow:0 7px 24px #16335008}.stage{padding:16px 18px 20px}.stage-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:10px}.stage-title{font-size:21px;font-weight:850;letter-spacing:-.03em}.stage-desc{font-size:12px;color:#60758c;margin-top:5px;line-height:1.6}.stage-meta{font-size:11px;white-space:nowrap;background:#eff5fa;border-radius:9px;color:#4f6c88;padding:8px 10px}.scene-grid{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(0,1fr);gap:12px}.scene-card{position:relative;border-radius:14px;overflow:hidden;background:#f5f9fc;border:1px solid #e4ecf3;min-width:0}.scene-card h3{position:absolute;top:14px;left:15px;z-index:2;margin:0;font-size:12px;color:#577189;font-weight:760}.scene-primary{background:linear-gradient(180deg,#f9fcff,#f3f8fc)}.scene-card .corner{position:absolute;top:13px;right:14px;font-size:10px;color:#7990a5;z-index:2}.scene-svg{display:block;width:100%;height:auto;user-select:none;touch-action:none}.drawing{cursor:crosshair}.hint-in-scene{position:absolute;bottom:9px;left:10px;background:#ffffffdc;color:#7b8798;border:1px solid #edf1f5;font-size:10px;padding:5px 8px;border-radius:7px;pointer-events:none}
+.stage-footer{margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}.status{display:flex;align-items:center;gap:8px;font-size:12px;color:#51677d}.status-dot{display:inline-block;width:8px;height:8px;background:#18a37c;border-radius:50%}.status.warn{color:#ad5b1c}.status.warn .status-dot{background:#df873f}.scene-pill{border:1px solid #e3eaf1;border-radius:99px;padding:5px 10px;font-size:11px;color:#6b8298}
+.sidepanel{padding:17px 18px}.side-title{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800;margin:0 0 14px}.mini-note{font-size:11px;color:#7d91a4;font-weight:500}.transport{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.action{background:#fff;border:1px solid #d4e0eb;color:#35516c;border-radius:10px;padding:10px 4px;font-size:12px;font-weight:750;transition:.12s}.action:hover{background:#eef5fb}.action.primary{background:#2369a4;border-color:#2369a4;color:white}.action:disabled{opacity:.43;cursor:not-allowed}.line{height:1px;background:#e9eef3;margin:15px 0}.control-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 7px;font-size:12px;color:#4e6278}.control-line strong{font-size:12px;color:#163f67;font-variant-numeric:tabular-nums}.range{width:100%;accent-color:#277caf;cursor:pointer}.range:disabled{opacity:.55}.select{border:1px solid #d9e3ec;padding:7px 9px;border-radius:9px;background:#fff;color:#25445f;font-size:12px}.speed-pos{display:flex;gap:8px;align-items:center;justify-content:space-between}.speed-pos span{font-size:12px;color:#526e85}.param{margin:13px 0 15px}.param small{color:#7a91a5;font-size:10px;display:block;margin-top:4px}.param:last-child{margin-bottom:0}
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.toggle{display:flex;align-items:center;gap:7px;border:1px solid #e3eaf1;border-radius:10px;padding:9px 8px;font-size:12px;cursor:pointer;background:white;white-space:nowrap}.toggle input{accent-color:#286fa3;width:15px;height:15px;margin:0;cursor:pointer}.toggle .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto}.toggle.disabled{opacity:.42}.pred-actions{display:flex;gap:7px}.pred-actions .action{flex:1}.pred-active{background:#fff7ec!important;border-color:#e9ad5d!important;color:#915d1e!important}.teach{display:flex;align-items:start;gap:11px;padding:15px 16px}.teach .circle{flex:0 0 auto;width:29px;height:29px;display:grid;place-items:center;border-radius:10px;background:#fcefd8;color:#93631b;font-weight:850}.teach strong{font-size:13px}.teach p{font-size:12px;line-height:1.8;margin:4px 0 0;color:#5c7086}.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px}.legend span{font-size:11px;color:#586e82;display:flex;align-items:center;gap:5px}.legend i{width:18px;height:3px;border-radius:2px;display:inline-block}.model-note{color:#58718a;font-size:12px;line-height:1.8;margin:0}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px}.metric{padding:12px;background:#f5f8fc;border-radius:11px}.metric .key{font-size:11px;color:#647b90}.metric .val{font-size:17px;color:#213d58;font-weight:850;margin-top:4px;font-variant-numeric:tabular-nums}.metric .unit{font-size:10px;color:#8a9ba9;margin-left:4px}.eq-box{margin-top:11px;background:#f1f6fa;color:#315a7a;border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.8}
+.notice{border-left:3px solid #d48a40;background:#fff9f0;padding:10px 12px;color:#875b29;font-size:12px;line-height:1.7;border-radius:3px 8px 8px 3px;margin-top:10px}.foot{font-size:11px;color:#8a9ba9;text-align:center;margin-top:22px}.small-btn{padding:6px 9px;border:1px solid #d8e5ee;background:#fff;border-radius:8px;color:#496781;font-size:11px;cursor:pointer}.hidden{display:none!important}
+@media(max-width:1160px){.main{grid-template-columns:minmax(0,1fr) 285px}.wrap{padding:18px}.scene-grid{grid-template-columns:1fr}.stage-meta{display:none}}
+@media(max-width:770px){.main{display:flex;flex-direction:column}.right{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.right .sidepanel:nth-child(3){grid-column:span 2}.scene-grid{grid-template-columns:1fr 1fr}.wrap{padding:12px}.tabs{overflow-x:auto;display:flex;padding-bottom:4px}.tab{min-width:145px;flex:1}.header-note{display:none}.brand h1{font-size:21px}.brand-logo{height:43px;width:43px}}
+@media(max-width:530px){.scene-grid{grid-template-columns:1fr}.right{display:flex}.stage{padding:13px}.metrics{grid-template-columns:1fr 1fr}.brand p{font-size:10px}.tab{min-width:123px;padding:10px 6px}.stage-title{font-size:18px}}
+
+/* v5: ベクトル合成＝共通縮尺、合力強調＝独立倍率 */
+.vector-method{background:#edf5fc;border:1px solid #c5d9e8;border-radius:12px;padding:12px;margin-bottom:13px}
+.vector-method-title{font-weight:850;color:#315773;font-size:12px;margin-bottom:9px}
+.vector-method-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vector-method-options label{display:flex;align-items:center;gap:7px;font-size:12px;border:1px solid #d4e4f1;border-radius:9px;padding:9px 8px;background:#fff;cursor:pointer;line-height:1.5}
+.vector-method-options input{accent-color:#286fa3;margin:0}
+.vector-method small{display:block;font-size:11px;line-height:1.6;color:#54708a;margin-top:8px}
+.compose-panel{margin-top:13px;padding:14px;border:1px solid #d5e4ef;background:#f9fcff;border-radius:13px}
+.compose-panel header{margin:0 0 9px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.compose-panel h3{font-size:14px;margin:0;color:#254c69}
+.compose-panel header span{font-size:11px;color:#697f92}
+.compose-panel svg{display:block;width:100%;height:auto;max-height:310px;background:white;border:1px solid #e4edf4;border-radius:10px}
+.compose-panel .caption{font-size:11px;color:#60788e;line-height:1.75;margin:7px 0 0}
+.compose-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px}
+.compose-tools .steps{display:flex;gap:6px}.compose-tools button{border:1px solid #cbdce9;border-radius:9px;background:#fff;color:#2c5472;font-weight:700;font-size:12px;padding:8px 12px;cursor:pointer}.compose-tools button:disabled{opacity:.4;cursor:default}
+.compose-tools span{font-size:12px;color:#3e5d76;font-variant-numeric:tabular-nums}
+.net-controls.inactive{opacity:.52}.net-controls.inactive select{pointer-events:none}
+/* v4: 合力を主役にするための専用コントロールと強調表示 */
+.net-controls{margin-top:12px;background:#fff5f5;border:1px solid #f4d1d3;border-radius:12px;padding:11px 12px}
+.net-controls .net-title{font-weight:850;color:#a93648;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.net-controls select,.mode-select{width:100%;background:#fff;border:1px solid #d8e2ec;padding:9px;border-radius:9px;color:#294862;font-size:12px}
+.net-controls select{border-color:#edc1c6;color:#9f3045;font-weight:800;margin-top:7px}
+.net-note{font-size:11px;line-height:1.65;color:#975264;margin:8px 0 0}
+.net-focus{margin-top:13px;padding:12px 14px;border:1px solid #f0c1c8;border-left:5px solid #d32e49;background:#fff8f8;border-radius:12px;display:flex;align-items:center;gap:15px}
+.net-focus-graphic{width:195px;flex:0 0 195px;max-width:43%}
+.net-focus-copy{flex:1;min-width:0}
+.net-focus-title{font-size:11px;font-weight:800;color:#a8374c}
+.net-focus-value{font-weight:900;font-size:24px;color:#c62c48;font-variant-numeric:tabular-nums;margin:2px 0}
+.net-focus-value small{font-size:12px;font-weight:700}
+.net-focus-explainer{font-size:11px;line-height:1.65;color:#875e68}
+.mode-wrap{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.mode-wrap label{font-size:12px;font-weight:750;color:#455b71}
+.net-vector line{pointer-events:none}
+@media(max-width:530px){.net-focus{gap:6px;padding:10px}.net-focus-graphic{width:43%;flex-basis:43%}.net-focus-value{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand"><div class="brand-logo">◎</div><div><div class="eyebrow">INTERACTIVE PHYSICS LAB</div><h1>向心力を探せ！</h1><p>円運動する物体には、どんな力がはたらいている？</p></div></div><div class="header-note">高校物理 · 円運動の運動方程式</div></header>
+<nav id="tabs" class="tabs" aria-label="現象を選ぶ"></nav>
+<div class="main">
+<section class="left">
+ <div class="panel stage">
+  <div class="stage-head"><div><div class="stage-title" id="stageTitle">回転台上のミニカー</div><div class="stage-desc" id="stageDesc"></div></div><div class="stage-meta" id="stageMeta"></div></div>
+  <div class="scene-grid">
+    <div class="scene-card scene-primary"><h3 id="sectionTitle">横から見た図・旋回断面</h3><span class="corner" id="sideCorner">SECTION VIEW</span><svg id="sideSvg" class="scene-svg" viewBox="0 0 560 380" role="img" aria-label="横から見た運動と力の作用点"></svg><div class="hint-in-scene" id="sideHint">重力は重心、接触力は接地点から</div></div>
+    <div class="scene-card"><h3>上から見た円運動</h3><span class="corner">TOP VIEW</span><svg id="topSvg" class="scene-svg" viewBox="0 0 580 380" role="img" aria-label="円運動の真上からの図"></svg><div class="hint-in-scene" id="topHint">円軌道と中心を表示</div></div>
+  </div>
+  <div class="stage-footer"><div class="status" id="status"><i class="status-dot"></i><span id="statusText">再生すると円運動が始まります</span></div><div class="scene-pill" id="orbitStatus">角度 0°</div></div>
+  <div id="compositionPanel" class="compose-panel hidden" aria-live="off">
+    <header><h3>力をつなぐと、合力はどこを向く？</h3><span>局所的な中心方向－鉛直断面</span></header>
+    <svg id="compositionSvg" viewBox="0 0 580 260" role="img" aria-label="実際にはたらく力を共通縮尺で頭と尾をつないで合成する図"></svg>
+    <div class="compose-tools"><span id="compositionStepLabel">各力を平行移動して合成</span><div class="steps"><button id="composeBack">← 戻る</button><button id="composeNext">次の段階 →</button></div></div>
+    <p class="caption" id="compositionCaption">すべての矢印は同じ縮尺。ここでは作図のために平行移動しています。実際の作用点は上の断面図で確認してください。</p>
+  </div>
+  <div id="netFocus" class="net-focus hidden" aria-live="off">
+    <svg id="netFocusSvg" class="net-focus-graphic" viewBox="0 0 240 92" aria-label="中心向きの合力の拡大模式図"></svg>
+    <div class="net-focus-copy"><div class="net-focus-title">赤い矢印＝合力（中心向き）</div><div class="net-focus-value" id="netFocusValue">— <small>N</small></div><div class="net-focus-explainer" id="netFocusExplain">数値は実際の力の大きさです。</div></div>
+  </div>
+  <div id="numbers" class="metrics hidden"></div>
+  <div id="formula" class="eq-box hidden"></div>
+  <div class="legend" id="legend"></div>
+ </div>
+ <div class="panel teach"><div class="circle">?</div><div><strong id="questionTitle">この物体には、どんな力がはたらいている？</strong><p id="questionText">まず力を表示しない状態で運動を観察しましょう。一時停止し、予想した力の矢印を描いてから、答えを確かめてください。</p></div></div>
+ <div class="panel sidepanel"><div class="side-title">このモデルの仮定 <span class="mini-note">開くと詳しく表示</span></div><details><summary style="cursor:pointer;font-size:12px;color:#35648b;font-weight:750">理想化と成立条件を読む</summary><p class="model-note" id="modelText" style="margin-top:10px"></p></details></div>
+</section>
+<aside class="right">
+ <div class="panel sidepanel">
+  <h2 class="side-title">運動を操作 <span class="mini-note">PLAYBACK</span></h2>
+  <div class="transport"><button class="action primary" id="playBtn">▶ 再生</button><button class="action" id="stepBtn">｜▶ 1コマ</button><button class="action" id="resetBtn">↺ リセット</button></div>
+  <div class="line"></div>
+  <div class="speed-pos"><span>再生速度</span><select class="select" id="playSpeed"><option value="0.25">0.25 倍</option><option value="0.5">0.5 倍</option><option value="1" selected>1 倍</option><option value="2">2 倍</option></select></div>
+  <div class="control-line"><span>物体の位置（停止中に変更可）</span><strong id="phaseValue">0°</strong></div><input aria-label="円運動の位置" id="phaseRange" class="range" type="range" min="0" max="360" step="1" value="0">
+ </div>
+ <div class="panel sidepanel"><h2 class="side-title">条件を変える <span class="mini-note">PARAMETERS</span></h2><div id="paramControls"></div></div>
+ <div class="panel sidepanel"><h2 class="side-title">力とベクトルを表示 <span class="mini-note">初期状態は非表示</span></h2><div class="vector-method"><div class="vector-method-title">赤い合力をどう表示する？</div><div class="vector-method-options">
+ <label><input type="radio" name="vectorMethod" value="exact" checked> ベクトル合成<br>（全て共通縮尺）</label>
+ <label><input type="radio" name="vectorMethod" value="emphasis"> 合力を強調<br>（赤だけ拡大可）</label>
+ </div><small id="methodNote">合成モード：同じ縮尺で力を足すと、赤い合力と正確に一致します。</small></div><div class="mode-wrap"><label for="displayMode">表示モード</label><select id="displayMode" class="mode-select"><option value="custom">個別に選択（初期状態：非表示）</option><option value="A">A：実際にはたらく力だけ</option><option value="B">B：実際の力＋合力</option><option value="C">C：合力だけ</option><option value="D">D：合力＋速度ベクトル</option><option value="E">E：分力＋合力</option></select></div><div class="toggle-grid" id="toggles"></div><div class="control-line"><span>個々の力・速度の表示倍率</span><strong id="forceScaleLabel">1.0 倍</strong></div><input aria-label="ベクトル表示倍率" class="range" type="range" id="forceScale" min="0.5" max="2" value="1" step="0.1"><div class="net-controls" id="netControls"><div class="net-title"><span>● 赤い合力ベクトルを強調</span><span id="netScaleLabel">3 倍</span></div><select aria-label="合力専用の表示倍率" id="netScale"><option value="1">1 倍</option><option value="2">2 倍</option><option value="3" selected>3 倍（おすすめ）</option><option value="5">5 倍</option></select><p class="net-note" id="netScaleNote">合力だけ独立に拡大。表示長には見やすさのための上下限があります。数値は実値です。</p></div><div class="line"></div><label class="toggle" style="margin-top:4px"><input id="showNumbers" type="checkbox"> 数値と運動方程式も表示する</label></div>
+ <div class="panel sidepanel"><h2 class="side-title">力を予想する <span class="mini-note">PREDICTION</span></h2><button id="drawMode" class="action" style="width:100%;margin-bottom:9px">✎ 力の矢印を描く</button><div id="drawHelp" class="model-note">ボタンを押すと運動が停止します。重心や接地点からドラッグすると矢印を描けます。矢印の根元・先端はあとで動かせます。</div><div class="control-line"><span>矢印につける名前</span></div><select class="select" id="predType" style="width:100%"><option value="?">名前なし（?）</option><option value="重力">重力</option><option value="垂直抗力">垂直抗力</option><option value="張力">張力</option><option value="摩擦力">摩擦力</option><option value="弾性力">弾性力</option><option value="向心力">向心力</option><option value="その他">その他</option></select><div class="pred-actions" style="margin-top:10px"><button class="action" id="undoBtn">↶ 1本戻す</button><button class="action" id="deleteBtn">選択を削除</button><button class="action" id="clearBtn">すべて消す</button></div><div class="notice hidden" id="drawStatus">作図モードです。赤丸の重心や接地点から描き、両端のハンドルで修正できます。</div></div>
+</aside>
+</div>
+<div class="foot">理想化した物理モデルに基づく授業用教材 · すべてブラウザ内で計算 · 入力や予想は外部に送信しません</div>
+</div>
+<script>
+'use strict';
+const G=9.8, TAU=2*Math.PI;
+const palette={gravity:'#5277eb',normal:'#079e96',tension:'#925cca',elastic:'#b36b24',friction:'#d28a27',net:'#e34d64',velocity:'#0c8bb5',component:'#8293aa',predict:'#df9336'};
+const sceneData=[
+ {id:'car',name:'回転台上のミニカー',short:'ミニカー',desc:'回転台の中心とばねでつながれたミニカー。弾性力を調べよう。',model:'車は回転台の中心に固定したばねにつながれ、ばねが自然長より伸びた状態で水平等速円運動する理想モデルです。ばねの弾性力 F=k(r−L₀) が向心力になり、k(r−L₀)=mv²/r が成り立ちます。回転台とタイヤの水平摩擦は無視し、鉛直方向では重力と垂直抗力がつり合います。実験装置の接続位置や駆動方式は簡略化しています。',question:'回転台が車を回すとき、中心向きの力はどこから生まれるだろう？',params:[['mass','質量 m','kg',.5,5,.1],['radius','回転半径 r','m',2.2,5,.1],['springK','ばね定数 k','N/m',4,30,1],['restLength','ばねの自然長 L₀','m',.4,2,.1]]},
+ {id:'pendulum',name:'円錐振り子',short:'円錐振り子',desc:'糸につられた球の軌道と、張力の成分を確認しよう。',model:'長さ一定で質量のない糸につられた質点が、鉛直軸のまわりを一定の高さ・速さで回ります。鉛直方向は T cosθ=mg、水平な合力は T sinθ=mv²/r です。角度や糸の長さを変えると速さが自動的に決まります。',question:'重力と張力は打ち消し合う？ それとも合力が残る？',params:[['mass','球の質量 m','kg',.2,4,.1],['length','糸の長さ L','m',1,4,.1],['angle','鉛直からの角度 θ','°',15,70,1]]},
+ {id:'bike',name:'バイクのコーナリング',short:'バイク',desc:'水平な路面で、タイヤと地面の摩擦が向心力になる。',model:'平坦な道路で車体とライダーが一体となって定速旋回する理想モデルです。重力は代表重心、垂直抗力・静止摩擦力は代表接地点に描きます。傾きは tanθ=v²/(rg) で計算し、力のモーメントの詳細は扱いません。摩擦不足時は等速円運動を停止します。',question:'バイクが内側に傾いていても、重力の方向は変わるだろうか？',params:[['mass','車体＋乗員の質量 m','kg',80,250,5],['speed','速さ v','m/s',2,23,.1],['radius','旋回半径 r','m',8,65,1],['mu','最大静止摩擦係数 μ','',.2,1.2,.05]]},
+ {id:'bobsled',name:'ボブスレー',short:'ボブスレー',desc:'摩擦のない傾斜したコース。斜面からの力が中心を向く。',model:'一定のバンク角βをもつ理想化した円形コースです。摩擦はなく、接点の垂直抗力と重心の重力だけが作用します。N cosβ=mg、N sinβ=mv²/r から v=√(rg tanβ) が決まります。実際の複数のランナー接触や剛体のモーメントは扱いません。',question:'重力は下向き、垂直抗力は斜め上向き。合力はどこを向く？',params:[['mass','そり＋選手の質量 m','kg',70,300,5],['radius','コーナー半径 r','m',8,65,1],['bank','バンク角 β','°',10,45,1]]}
+];
+const P={
+ car:{mass:2,radius:3,springK:12,restLength:1.5},pendulum:{mass:1.5,length:2.4,angle:35},bike:{mass:180,speed:12,radius:30,mu:.85},bobsled:{mass:150,radius:22,bank:32}
+};
+const state={vectorMethod:'exact',compositionStep:99,scene:'car',running:false,phase:0,rate:1,draw:false,show:{gravity:false,normal:false,tension:false,elastic:false,friction:false,net:false,velocity:false,component:false,center:false},numbers:false,forceScale:1,netScale:3,displayMode:'custom',arrows:[],selected:-1,drag:null,lastFrame:0};
+const el=id=>document.getElementById(id);
+const s=()=>sceneData.find(x=>x.id===state.scene);
+const escapeHtml=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(v,d=1)=>Number(v).toFixed(d);
+function physics(){
+ const p=P[state.scene], m=p.mass, rad=(p.angle||0)*Math.PI/180, beta=(p.bank||0)*Math.PI/180;
+ let r=p.radius||p.length*Math.sin(rad),v=p.speed||0,T=0,N=m*G,friction=0,elastic=0,net=0,ang=rad,valid=true;
+ if(state.scene==='car'){
+  elastic=p.springK*(r-p.restLength); net=elastic;v=Math.sqrt(elastic*r/m);
+ } else if(state.scene==='pendulum'){
+  r=p.length*Math.sin(rad);T=m*G/Math.cos(rad);net=T*Math.sin(rad);v=Math.sqrt(net*r/m);N=0;
+ } else if(state.scene==='bobsled'){
+  v=Math.sqrt(r*G*Math.tan(beta));N=m*G/Math.cos(beta);net=m*v*v/r;
+ } else {
+  net=m*v*v/r;friction=net;
+  if(state.scene==='bike'){valid=friction<=p.mu*m*G+1e-8;}
+ }
+ return {m,r,v,T,N,friction,elastic,net,g:m*G,omega:v/r,ang,beta,valid,mu:p.mu||null,lean:Math.atan(v*v/(r*G))};
+}
+function renderTabs(){el('tabs').innerHTML=sceneData.map((x,i)=>`<button class="tab ${x.id===state.scene?'active':''}" data-scene="${x.id}" aria-pressed="${x.id===state.scene}"><span class="num">${i+1}</span>${x.short}</button>`).join('');}
+function switchScene(id){if(id===state.scene)return;state.scene=id;state.compositionStep=99;state.running=false;state.phase=0;state.draw=false;state.arrows=[];state.selected=-1;state.show={gravity:false,normal:false,tension:false,friction:false,net:false,velocity:false,component:false,center:false};state.numbers=false;state.displayMode='custom';el('displayMode').value='custom';el('showNumbers').checked=false;el('phaseRange').value=0;renderTabs();updateSceneInfo();updateParams();updateToggles();syncControls();render();}
+function updateSceneInfo(){el('stageTitle').textContent=s().name;el('stageDesc').textContent=s().desc;el('stageMeta').textContent=state.scene==='bike'?'水平路面・静止摩擦':state.scene==='car'?'ばねによる中心向きの弾性力':'摩擦なしの理想モデル';el('questionTitle').textContent=s().question;el('modelText').textContent=s().model;el('questionText').textContent='まず運動だけを観察し、一時停止して力を予想してください。作図後に、個別の力と合力を表示して比較できます。';el('sectionTitle').textContent=state.scene==='pendulum'?'円錐振り子｜斜め横からの投影':state.scene==='car'?'回転台｜横から見た断面':state.scene==='bike'?'バイク｜旋回断面': 'ボブスレー｜旋回断面';el('sideCorner').textContent=state.scene==='pendulum'?'3D PROJECTION':'RADIAL SECTION';el('sideHint').textContent=state.scene==='pendulum'?'円すい面を斜め横から投影。球の高さは一定':state.scene==='car'?'ばねの弾性力は車体との接続位置から中心へ':'重力は重心、接触力は接地点から';}
+function updateParams(){const id=state.scene,p=P[id];el('paramControls').innerHTML=s().params.map(([key,name,unit,min,max,step])=>`<div class="param"><div class="control-line"><span>${name}</span><strong id="${key}Val">${fmt(p[key],step<.1?2:step>=1?0:1)} ${unit}</strong></div><input class="range" data-param="${key}" aria-label="${name}" type="range" min="${min}" max="${max}" step="${step}" value="${p[key]}"></div>`).join('');}
+const toggles=[['gravity','重力',palette.gravity],['normal','垂直抗力',palette.normal],['tension','張力',palette.tension],['elastic','ばねの弾性力',palette.elastic],['friction','摩擦力',palette.friction],['net','合力',palette.net],['velocity','速度',palette.velocity],['component','力の成分',palette.component],['center','中心方向','gray']];
+function applyDisplayMode(mode){
+ state.displayMode=mode;
+ // 向心力（合力）は独立した力としては足さない。
+ const all={gravity:false,normal:false,tension:false,elastic:false,friction:false,net:false,velocity:false,component:false,center:false};
+ const actual={car:['gravity','normal','elastic'],pendulum:['gravity','tension'],bike:['gravity','normal','friction'],bobsled:['gravity','normal']}[state.scene];
+ if(mode==='A'||mode==='B')actual.forEach(k=>all[k]=true);
+ if(mode==='B'||mode==='C'||mode==='D'||mode==='E')all.net=true;
+ if(mode==='D')all.velocity=true;
+ if(mode==='E')all.component=true;
+ if(mode==='custom')return;
+ state.show=all;updateToggles();render();
+}
+function updateToggles(){const id=state.scene,available={gravity:1,normal:['car','bike','bobsled'].includes(id),tension:['pendulum'].includes(id),elastic:id==='car',friction:id==='bike',net:1,velocity:1,component:['pendulum','bobsled'].includes(id),center:1};el('displayMode').querySelector('option[value="E"]').disabled=!['pendulum','bobsled'].includes(id);el('toggles').innerHTML=toggles.map(([k,l,c])=>`<label class="toggle ${available[k]?'':'disabled'}"><input type="checkbox" data-toggle="${k}" ${state.show[k]?'checked':''} ${available[k]?'':'disabled'}><i class="dot" style="background:${c}"></i>${l}</label>`).join('');}
+function syncControls(){const f=physics();el('playBtn').textContent=state.running?'❚❚ 一時停止':'▶ 再生';el('playBtn').disabled=!f.valid;el('stepBtn').disabled=!f.valid;el('phaseRange').disabled=state.running;el('phaseValue').textContent=`${Math.round(state.phase*180/Math.PI%360)}°`;el('phaseRange').value=Math.round(state.phase*180/Math.PI%360);el('orbitStatus').textContent=`位置 ${Math.round(state.phase*180/Math.PI%360)}° · ${state.running?'運動中':'停止中'}`;el('drawMode').textContent=state.draw?'✓ 作図を終了':'✎ 力の矢印を描く';el('drawMode').classList.toggle('pred-active',state.draw);el('drawStatus').classList.toggle('hidden',!state.draw);el('deleteBtn').disabled=state.selected<0;el('topSvg').classList.toggle('drawing',state.draw);el('sideSvg').classList.toggle('drawing',state.draw);el('topHint').textContent=state.draw?'図でドラッグして予想の力を描く':'円運動の中心と速度を確認';const status=el('status');status.classList.toggle('warn',!f.valid);el('statusText').textContent=!f.valid?'摩擦が不足：この条件では等速円運動を維持できません':state.draw?'作図モード：矢印の始点・先端をドラッグして修正できます':state.running?'等速円運動を再生中': '停止中：物体の位置や力を観察できます';}
+function markerDefs(){return `<defs>
+ <marker id="m-gravity" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.gravity}"/></marker>
+ <marker id="m-normal" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.normal}"/></marker>
+ <marker id="m-elastic" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.elastic}"/></marker>
+ <marker id="m-tension" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.tension}"/></marker>
+ <marker id="m-friction" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.friction}"/></marker>
+ <marker id="m-net" markerWidth="15" markerHeight="15" refX="11" refY="7.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L13 7.5 L0 15 z" fill="${palette.net}" stroke="#fff" stroke-width=".7"/></marker>
+ <marker id="m-net-exact" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4.5 L0 9 z" fill="${palette.net}"/></marker>
+ <marker id="m-velocity" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.velocity}"/></marker>
+ <marker id="m-component" markerWidth="7" markerHeight="7" refX="5.3" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L6 3 L0 6 z" fill="${palette.component}"/></marker>
+ <marker id="m-predict" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L7 3.5 L0 7 z" fill="${palette.predict}"/></marker></defs>`;}
+function line(x1,y1,x2,y2,color='#b7c5d4',w=2,dash=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/>`;}
+function circle(x,y,r,fill,stroke='none',sw=1){return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;}
+function text(x,y,t,fill='#54708b',size=12,anchor='middle'){return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-weight="600" fill="${fill}" font-size="${size}">${escapeHtml(t)}</text>`;}
+function forceArrow(start,unit,length,type,label,offset=0,component=false){
+ if(length<.7)return '';const end=[start[0]+unit[0]*length,start[1]+unit[1]*length],c=palette[type],dx=end[0]-start[0],dy=end[1]-start[1];let out=`<line x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}" stroke="${c}" stroke-width="${component?2.8:4.0}" stroke-linecap="round" ${component?'stroke-dasharray="5 5"':''} marker-end="url(#m-${type})"/>`;if(label) {const mid=0.69,ox=-dy/Math.max(1,length),oy=dx/Math.max(1,length),tx=start[0]+dx*mid+ox*(13+offset),ty=start[1]+dy*mid+oy*(13+offset);out+=`<text x="${tx}" y="${ty}" text-anchor="middle" font-size="11.5" font-weight="800" paint-order="stroke" stroke="#f5f9fc" stroke-width="4.5" stroke-linejoin="round" fill="${c}">${escapeHtml(label)}</text>`;}return out;
+}
+// 合力用：実際の向きは守りつつ、各題材で見えやすい長さに補正。
+// 数値計算は physics() の値を用い、表示の上下限は画面上の長さだけに適用する。
+function netLength(f,base,maxLength){
+ return state.vectorMethod==='exact'?f.net*base:Math.min(maxLength,Math.max(40,f.net*base)*state.netScale);
+}
+function netArrow(start,unit,length,label='合力'){
+ if(length<.5)return '';
+ const n=Math.hypot(unit[0],unit[1]);if(n<1e-8)return '';
+ const vx=unit[0]/n,vy=unit[1]/n,ex=start[0]+vx*length,ey=start[1]+vy*length;
+ const exact=state.vectorMethod==='exact';
+ const nx=-vy,ny=vx;let tx=start[0]+vx*(exact?length*.50:Math.min(length*.64,length-20))+nx*19;
+ let ty=start[1]+vy*(exact?length*.50:Math.min(length*.64,length-20))+ny*19;
+ return `<g class="net-vector" pointer-events="none">
+ <line x1="${start[0]}" y1="${start[1]}" x2="${ex}" y2="${ey}" stroke="#fff" stroke-width="${exact?8:14}" stroke-linecap="round"/>
+ <line x1="${start[0]}" y1="${start[1]}" x2="${ex}" y2="${ey}" stroke="${palette.net}" stroke-width="${exact?4.6:7.5}" stroke-linecap="round" marker-end="url(#m-net${exact?'-exact':''})"/>
+ <text x="${tx}" y="${ty}" text-anchor="middle" font-size="14" font-weight="900" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" fill="${palette.net}">${escapeHtml(label)}</text>
+ </g>`;
+}
+// 画面上でばねを描く。中央のジグザグは描画上の表現で、力の大きさは別途フックの法則で計算。
+function springPath(a,b,turns=9,amplitude=7){
+ const dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy),ux=dx/d,uy=dy/d,nx=-uy,ny=ux;
+ const margin=Math.min(15,d/6), span=d-2*margin;
+ let path=`M${a[0]} ${a[1]} L${a[0]+ux*margin} ${a[1]+uy*margin}`;
+ for(let i=1;i<=turns*2;i++){
+  const dist=margin+span*i/(turns*2),off=i===turns*2?0:(i%2?amplitude:-amplitude);
+  path+=` L${a[0]+ux*dist+nx*off} ${a[1]+uy*dist+ny*off}`;
+ }
+ return path+` L${b[0]} ${b[1]}`;
+}
+function pArrow(x1,y1,x2,y2,selected,label,i){
+ const midx=(x1+x2)/2,midy=(y1+y2)/2;
+ return `<g class="prediction" data-index="${i}" style="cursor:pointer">
+ <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${palette.predict}" stroke-width="${selected?4.8:3.5}" stroke-linecap="round" marker-end="url(#m-predict)"/>
+ <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="12" data-handle="end"/>
+ <circle data-handle="start" cx="${x1}" cy="${y1}" r="${selected?9:6}" fill="#fff" stroke="${palette.predict}" stroke-width="2.7"/>
+ <circle data-handle="end" cx="${x2}" cy="${y2}" r="${selected?9:6}" fill="${selected?'#ffdb9d':'#fff'}" stroke="${palette.predict}" stroke-width="2"/>
+ <text x="${midx+10}" y="${midy-11}" fill="#a36b23" font-size="12" font-weight="750" paint-order="stroke" stroke="#f5f9fc" stroke-width="4">${escapeHtml(label)}</text></g>`;
+}
+function predictionLayer(panel,pos){
+ let o='';state.arrows.forEach((a,i)=>{if(a.panel!==panel)return;
+ o+=pArrow(pos[0]+a.sx,pos[1]+a.sy,pos[0]+a.ex,pos[1]+a.ey,i===state.selected,a.name,i);
+ });return o;
+}
+function anchorsOverlay(cg,contact,draw=state.draw){
+ if(!draw)return '';
+ let s=circle(cg[0],cg[1],6,'#fff','#e27e34',2.5)+text(cg[0]+20,cg[1]-12,'重心','#936b40',11,'start');
+ if(contact){s+=circle(contact[0],contact[1],6,'#fff','#258f83',2.5)+text(contact[0]+13,contact[1]+23,'接地点','#258f83',11,'start');}
+ return s;
+}
+
+function eTop(f){
+ const cx=290,cy=202,maxR=(['car'].includes(state.scene)?8:['pendulum'].includes(state.scene)?4:65),R=67+92*Math.min(1,f.r/maxR),ang=state.phase,x=cx+R*Math.cos(ang),y=cy+R*Math.sin(ang);const u=[-Math.cos(ang),-Math.sin(ang)],vdir=[-Math.sin(ang),Math.cos(ang)];
+ let html=markerDefs();html+=`<rect width="580" height="380" fill="#f5f9fc"/>`;
+ html+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#c6d6e4" stroke-width="2.5" stroke-dasharray="6 6"/>`;
+ html+=`<circle cx="${cx}" cy="${cy}" r="${R+12}" fill="none" stroke="#e6eef5" stroke-width="1.3"/>`;
+ html+=line(cx,cy,x,y,'#a6b8c9',1.5,'4 5')+circle(cx,cy,4,'#7e95ad')+text(cx,cy+20,'中心','#8398ae',12);
+ html+=text(cx+R/2,cy-15,`r = ${fmt(f.r,1)} m`,'#8ca0b2',11);
+ for(let i=0;i<7;i++){const a=ang-((6-i)/6)*1.05;html+=circle(cx+R*Math.cos(a),cy+R*Math.sin(a),i===6?4.5:2.5,i===6?'#f5a24c':'#cfdae6');}
+ if(state.scene==='pendulum')html+=line(cx,cy,x,y,'#9b86ae',2.2);
+ if(state.scene==='car'){const tip=[x+u[0]*19,y+u[1]*19]; html+=`<path d="${springPath([cx,cy],tip,9,6)}" fill="none" stroke="#a4774d" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>`+circle(cx,cy,6,'#6989a1','#fff',1.5);}
+ if(state.scene==='car'){html+=`<g transform="translate(${x} ${y}) rotate(${ang*180/Math.PI+90})"><rect x="-18" y="-11" width="36" height="22" rx="7" fill="#e99035" stroke="#b96b25" stroke-width="1.5"/><rect x="-10" y="-7" width="20" height="11" rx="3" fill="#ffe7c4" opacity=".9"/><path d="M-13 -12 v-3 M13 -12 v-3 M-13 12 v3 M13 12 v3" stroke="#3c566d" stroke-width="5"/></g>`;}
+ else if(state.scene==='bike'){html+=`<g transform="translate(${x} ${y}) rotate(${ang*180/Math.PI+90})"><ellipse rx="13" ry="21" fill="#ed9b3f" stroke="#bf762d" stroke-width="2"/><path d="M0 -24 V24" stroke="#3b5975" stroke-width="5" stroke-linecap="round"/><rect x="-7" y="-10" width="14" height="18" rx="5" fill="#d26445"/></g>`;}
+ else if(state.scene==='bobsled'){html+=`<g transform="translate(${x} ${y}) rotate(${ang*180/Math.PI+90})"><path d="M-13 -22 Q0 -31 13 -22 L14 14 Q12 24 0 25 Q-12 24 -14 14 Z" fill="#eda247" stroke="#af6926" stroke-width="2"/><ellipse cx="0" cy="-8" rx="8" ry="6" fill="#445d73"/><ellipse cx="0" cy="8" rx="8" ry="6" fill="#445d73"/></g>`;}
+ else {html+=`<circle cx="${x}" cy="${y}" r="15" fill="#ee9b3e" stroke="#b86b2c" stroke-width="2"/><circle cx="${x-5}" cy="${y-5}" r="4" fill="#fff2da" opacity=".85"/>`;}
+ const scale=Math.min(1,80/Math.max(1,f.net))*state.forceScale;
+ if(state.show.center)html+=forceArrow([x,y],u,69,'component','中心',0,true);
+ if(state.show.velocity)html+=forceArrow([x,y],vdir,64*state.forceScale,'velocity','v');
+ if(state.show.elastic&&state.scene==='car')html+=forceArrow([x+u[0]*18,y+u[1]*18],u,f.elastic*scale,'elastic','Fₑ');
+ if(state.show.friction&&state.scene==='bike'&&f.valid)html+=forceArrow([x,y],u,f.friction*scale,'friction','f');
+ if(state.show.tension&&state.scene==='pendulum')html+=forceArrow([x,y],u,f.net*scale,'tension','Tの水平成分',8,true);
+ if(state.show.normal&&state.scene==='bobsled')html+=forceArrow([x,y],u,f.net*scale,'component','Nの水平成分',8,true);
+ if(state.show.component&&['pendulum','bobsled'].includes(state.scene))html+=forceArrow([x,y],u,f.net*scale,'component','水平成分',23,true);
+ html+=anchorsOverlay([x,y],null)+predictionLayer('top',[x,y]);
+ // 教師が見せる合力は予想矢印や既存の力のさらに前面に重ねる。
+ if(state.show.net&&f.valid){const p0=state.vectorMethod==='exact'?[x,y]:[x+vdir[0]*14,y+vdir[1]*14];html+=netArrow(p0,u,netLength(f,scale,116));}
+ if(!f.valid)html+=`<rect x="121" y="320" width="338" height="36" rx="9" fill="#fff2e6" stroke="#efc39a"/>${text(290,344,'摩擦不足：この条件では円運動を続けられません','#a76525',13)}`;
+ return {html,x,y};
+}
+function eSection(f){
+ const id=state.scene, p=P[id], ph=state.phase;
+ let html=markerDefs()+`<defs><linearGradient id="floorGrad" x2="0" y2="1"><stop stop-color="#e8f3fa"/><stop offset="1" stop-color="#bed4e4"/></linearGradient><linearGradient id="sphereGrad"><stop stop-color="#fff3d2"/><stop offset=".28" stop-color="#ffbf68"/><stop offset="1" stop-color="#d77a32"/></linearGradient><linearGradient id="sledGrad"><stop stop-color="#ffdd93"/><stop offset="1" stop-color="#d98d3b"/></linearGradient></defs><rect width="560" height="380" fill="transparent"/>`;
+ let cg=[357,198],contact=null;
+ const origin=[170,215];
+ const arrowBasis= Math.min(1.55,91/Math.max(f.g,f.T,f.N,f.net,1))*state.forceScale;
+ const turnLine=()=>line(90,cg[1],cg[0]-32,cg[1],'#a8bfd1',1.5,'7 7')+text(116,cg[1]-13,'旋回中心側','#7c98ac',12);
+ const showContact=()=>contact?circle(...contact,4.5,'#087e79','#fff',1.6):'';
+ if(id==='car'){
+  // Mini-car with a central spring, no horizontal friction. Wheel contact still supports its weight.
+  const floor=267;contact=[374,floor];cg=[374,213];
+  html+=`<ellipse cx="287" cy="293" rx="224" ry="14" fill="#b7c8d6" opacity=".18"/><rect x="22" y="${floor}" width="516" height="24" rx="7" fill="url(#floorGrad)" stroke="#89a8bd" stroke-width="1.5"/>`;
+  html+=line(22,floor,538,floor,'#557d9c',3)+line(46,floor+19,510,floor+19,'#a6bccd',2,'12 9');
+  const pivot=[126,234], mount=[317,236];
+  html+=`<rect x="112" y="224" width="27" height="24" rx="6" fill="#a8c0d1" stroke="#617f95" stroke-width="2"/>`+circle(pivot[0],pivot[1],6,'#5a7993')+`<path d="${springPath(pivot,mount,10,9)}" fill="none" stroke="#b37b46" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>`; 
+  html+=`<g transform="translate(374 0)"><circle cx="-31" cy="259" r="11" fill="#253e54" stroke="#90a7b9" stroke-width="2"/><circle cx="31" cy="259" r="11" fill="#253e54" stroke="#90a7b9" stroke-width="2"/><circle cx="-31" cy="259" r="5" fill="#adbfc9"/><circle cx="31" cy="259" r="5" fill="#adbfc9"/><path d="M-57 238 Q-53 219 -39 216 L-22 198 Q-13 191 17 196 L36 214 Q58 218 61 238 L57 248 H-54 Z" fill="#eaa04a" stroke="#a96c31" stroke-width="2.3"/><path d="M-15 202 L11 202 Q20 206 28 216 H-25Z" fill="#bedce9" stroke="#7396aa" stroke-width="1.4"/><path d="M-51 239 H55" stroke="#fae5ad" stroke-width="3"/></g>`;
+  html+=circle(cg[0],cg[1],4,'#cc8a46')+text(437,201,'重心','#84694b',12)+text(126,207,'回転中心','#6b8399',11)+text(242,201,'ばね','#956736',12); 
+ }
+ else if(id==='bike'){
+  const lean=f.lean, deg=lean*180/Math.PI; const pt=[375,269];contact=pt;
+  cg=[pt[0]-94*Math.sin(lean),pt[1]-94*Math.cos(lean)];
+  html+=`<rect x="20" y="270" width="520" height="20" rx="3" fill="url(#floorGrad)"/><path d="M20 270 H540" stroke="#597990" stroke-width="3"/><path d="M25 289 H537" stroke="#cad9e4" stroke-dasharray="12 9" stroke-width="2"/>`;
+  // side-on bike+rider silhouette in radial section. Contact point remains fixed.
+  html+=`<g transform="translate(${pt[0]} ${pt[1]}) rotate(${-deg})">
+   <ellipse cx="0" cy="-13" rx="19" ry="25" fill="#223c54" stroke="#7592a9" stroke-width="4"/><ellipse cx="0" cy="-13" rx="8" ry="16" fill="#a0becb"/>
+   <path d="M-20 -37 L-28 -72 Q-21 -83 0 -88 L23 -74 L17 -36Z" fill="#e28e38" stroke="#b26d35" stroke-width="2.5"/>
+   <path d="M-22 -72 L-4 -93 L13 -88 L29 -73" stroke="#334f6e" stroke-width="8" fill="none" stroke-linecap="round"/>
+   <path d="M-13 -84 Q-29 -99 -21 -118 L2 -138 Q21 -133 22 -116 L12 -95" fill="#df644e" stroke="#9c4541" stroke-width="2.3"/>
+   <path d="M-16 -98 L-33 -79 M11 -99 L27 -76" stroke="#d66e5b" stroke-width="10" stroke-linecap="round"/>
+   <path d="M-29 -81 L-39 -72 M24 -77 L35 -73" stroke="#33465c" stroke-width="5" stroke-linecap="round"/>
+   <ellipse cx="0" cy="-147" rx="18" ry="19" fill="#263c53" stroke="#d3e2ea" stroke-width="2.6"/><path d="M-12 -150 Q0 -156 14 -145" fill="none" stroke="#a4dce2" stroke-width="6"/>
+   <path d="M-15 -58 H16" stroke="#263f58" stroke-width="4"/>
+   </g>`;
+  html+=line(pt[0],269,pt[0],151,'#9eb7c9',1.4,'5 6');
+  html+=turnLine()+circle(cg[0],cg[1],4,'#cb8a43')+text(cg[0]+33,cg[1]-16,'合成重心','#8a735b',11);
+  html+=text(455,325,`傾き ${fmt(deg,1)}°`,'#697f98',12);
+ }
+ else if(id==='pendulum'){
+  // 3D point (r cosφ, r sinφ, -L cosθ) projected obliquely onto the page.
+  const theta=f.ang, cx=280,pivot=[cx,72],L=177;
+  const rad=L*Math.sin(theta), vertical=L*Math.cos(theta), depth=.22;
+  const y0=pivot[1]+vertical; const sn=Math.sin(ph), cs=Math.cos(ph);
+  cg=[cx+rad*cs,y0+rad*depth*sn];
+  html+=`<path d="M208 57 H352 L341 77 H219Z" fill="#bfd3e3" stroke="#8ba8bd" stroke-width="1.5"/>`;
+  html+=`<path d="M${cx} ${pivot[1]} L${cx-rad} ${y0} A${rad} ${rad*depth} 0 0 1 ${cx+rad} ${y0} Z" fill="#7ac4e0" fill-opacity=".10" stroke="none"/>`;
+  html+=`<ellipse cx="${cx}" cy="${y0}" rx="${rad}" ry="${rad*depth}" fill="none" stroke="#96b9d0" stroke-width="2" stroke-dasharray="5 6"/>`;
+  html+=line(cx,pivot[1],cx,y0,'#8aa4b7',1.7,'5 6');
+  html+=line(cx,pivot[1],cx+rad,y0,'#9bb8d0',1.6,'4 7')+line(cx,pivot[1],cx-rad,y0,'#9bb8d0',1.6,'4 7');
+  html+=line(pivot[0],pivot[1],cg[0],cg[1],'#7d6e92',3.3);
+  html+=circle(pivot[0],pivot[1],7,'#516d83','#fff',1.6);
+  // reference angle measured in the rightmost meridional section, not the apparent angle of the moving string.
+  const arcRad=33, arcEndX=cx+arcRad*Math.sin(theta),arcEndY=pivot[1]+arcRad*Math.cos(theta);
+  html+=`<path d="M${cx} ${pivot[1]+arcRad} A${arcRad} ${arcRad} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#ae90bd" stroke-width="2.5"/>`;
+  html+=text(cx+22,pivot[1]+46,'θ','#886a9f',14);
+  html+=line(cx,y0,cx+rad,y0,'#c2d0dc',1.4,'4 5')+text(cx+rad/2,y0-11,'r','#849bb0',13);
+  html+=`<path d="M${pivot[0]} ${pivot[1]-13} L${pivot[0]} ${pivot[1]-30}" stroke="#728fa4" stroke-width="2"/>`;
+  // front/back depth cue: sphere slightly changes its projected size and shade, not its actual mass/height
+  const rr=16+1.7*sn;
+  html+=`<circle cx="${cg[0]}" cy="${cg[1]}" r="${rr}" fill="url(#sphereGrad)" stroke="#aa692e" stroke-width="1.8"/>`;
+  html+=circle(cg[0]-5,cg[1]-6,4,'#ffefc6');
+  html+=text(282,335,'糸の長さ l ／ 鉛直となす角 θ は一定','#768ca1',12);
+  html+=text(282,355,'※ 斜め横からの投影：水平円軌道は楕円に見える','#8ca0b1',10);
+  if(state.show.center)html+=forceArrow(cg,[-cs,-depth*sn],73,'component','中心側',15,true);
+  if(state.show.gravity)html+=forceArrow(cg,[0,1],f.g*arrowBasis,'gravity','mg',-1);
+  if(state.show.tension)html+=forceArrow(cg,[-Math.sin(theta)*cs,-Math.cos(theta)-depth*Math.sin(theta)*sn],f.T*arrowBasis,'tension','T',7);
+  if(state.show.component){
+   html+=forceArrow(cg,[-cs,-depth*sn],f.net*arrowBasis,'component','T sinθ',17,true);
+   html+=forceArrow(cg,[0,-1],f.g*arrowBasis,'component','T cosθ',-12,true);
+  }
+  if(state.show.velocity)html+=forceArrow(cg,[-sn,depth*cs],62*state.forceScale,'velocity','v',16);
+  html+=anchorsOverlay(cg,null)+predictionLayer('side',cg);
+  if(state.show.net){
+   if(Math.abs(cs)<.22){
+    // この付近の合力は視線方向。上向き/下向きの2次元矢印で誤認させない。
+    const into=sn>0;
+    html+=`<g class="net-vector" pointer-events="none"><circle cx="${cg[0]}" cy="${cg[1]}" r="17" fill="#fff" stroke="${palette.net}" stroke-width="4"/>`;
+    html+=text(cg[0],cg[1]+6,into?'×':'•',palette.net,23);
+    html+=text(cg[0]+78,cg[1]-27,into?'合力：画面奥向き':'合力：画面手前向き',palette.net,13);
+    html+=`</g>`;
+   }else{const projected=Math.hypot(cs,depth*sn);html+=netArrow(state.vectorMethod==='exact'?cg:[cg[0]+10,cg[1]-10],[-cs,-depth*sn],netLength(f,arrowBasis,158)*(state.vectorMethod==='exact'?projected:1));}
+  }
+  return {html,x:cg[0],y:cg[1],contact:null};
+ }
+ else if(id==='bobsled'){
+  const b=f.beta, bd=b*180/Math.PI,pt=[362,273];contact=pt;
+  const rt= [-Math.sin(b),-Math.cos(b)];
+  cg=[pt[0]-52*Math.sin(b),pt[1]-52*Math.cos(b)];
+  // sloping bank rising away from the turn centre (towards the right).
+  const bx=pt[0],by=pt[1],w=260;
+  html+=`<path d="M${bx-150} ${by+150*Math.tan(b)} L${bx+180} ${by-180*Math.tan(b)} L${bx+180} 382 L${bx-150} 382 Z" fill="#cfe2ec" opacity=".67"/>`;
+  html+=line(bx-180,by+180*Math.tan(b),bx+180,by-180*Math.tan(b),'#6c96ae',9);
+  html+=line(bx-180,by+180*Math.tan(b)-7,bx+180,by-180*Math.tan(b)-7,'#a8d7e8',3);
+  html+=`<g transform="translate(${pt[0]} ${pt[1]}) rotate(${-bd})">
+   <ellipse cx="0" cy="-9" rx="80" ry="9" fill="#809bad" opacity=".24"/>
+   <path d="M-91 -13 Q-78 -36 -51 -36 H55 Q75 -34 91 -17 L77 -9 H-83Z" fill="url(#sledGrad)" stroke="#b26b2c" stroke-width="2.4"/>
+   <path d="M-64 -31 Q-44 -60 35 -60 Q65 -53 72 -32" fill="#2b5c7a" stroke="#25506a" stroke-width="2.4"/>
+   <path d="M-65 -31 H67" stroke="#eff6fa" stroke-width="3"/><rect x="-49" y="-57" width="19" height="20" rx="9" fill="#3b4d5d"/><rect x="-18" y="-58" width="19" height="21" rx="9" fill="#3b4d5d"/><rect x="14" y="-56" width="18" height="19" rx="9" fill="#3b4d5d"/>
+   <path d="M-79 -10 H79" stroke="#5a6675" stroke-width="4" stroke-linecap="round"/>
+   </g>`;
+  html+=turnLine()+circle(cg[0],cg[1],4,'#d0803a')+text(cg[0]+37,cg[1]-12,'重心','#846c4f',12);
+  html+=text(450,325,`バンク角 β=${fmt(bd,0)}°`,'#607d96',12);
+ }
+ // Real forces have different points of application.
+ if(state.show.center)html+=forceArrow(cg,[-1,0],82,'component','中心側',3,true);
+ if(state.show.gravity)html+=forceArrow(cg,[0,1],f.g*arrowBasis,'gravity','mg',-3);
+ if(state.show.normal)html+=forceArrow(contact,id==='bobsled'?[-Math.sin(f.beta),-Math.cos(f.beta)]:[0,-1],f.N*arrowBasis,'normal','N',-4);
+ if(state.show.elastic&&id==='car')html+=forceArrow([317,236],[-1,0],f.elastic*arrowBasis,'elastic','Fₑ',12);
+ if(state.show.friction&&id==='bike'&&f.valid)html+=forceArrow(contact,[-1,0],f.friction*arrowBasis,'friction','f',10);
+ if(state.show.component&&id==='bobsled'){
+  html+=forceArrow(contact,[-1,0],f.N*Math.sin(f.beta)*arrowBasis,'component','N sinβ',23,true);
+  html+=forceArrow(contact,[0,-1],f.N*Math.cos(f.beta)*arrowBasis,'component','N cosβ',18,true);
+ }
+ html+=showContact()+anchorsOverlay(cg,contact)+predictionLayer('side',cg);
+ if(state.show.net&&f.valid)html+=netArrow(state.vectorMethod==='exact'?cg:[cg[0],cg[1]-14],[-1,0],netLength(f,arrowBasis,163));
+ if(!f.valid)html+=`<rect x="48" y="324" width="466" height="33" rx="8" fill="#fff1e2"/>${text(281,346,'摩擦不足：この条件での等速円運動は成立しません','#985c1f',12)}`;
+ html+=text(272,367,'※ 接触力は代表接地点、重力は代表重心に描く（剛体のモーメントは省略）','#92a3b2',10);
+ return {html,x:cg[0],y:cg[1],contact};
+}
+
+// 独立した合成図：すべての実在の力を同じ px/N で平行移動して加える。
+// この図は実際の作用点を示すのではなく、質点の並進運動を考えるベクトル和を示す。
+function compositionForces(f){
+ const g={key:'gravity',label:'重力 mg',x:0,y:f.g};
+ if(state.scene==='car')return [g,{key:'elastic',label:'弾性力 Fₑ',x:-f.elastic,y:0},{key:'normal',label:'垂直抗力 N',x:0,y:-f.N}];
+ if(state.scene==='bike')return [g,{key:'friction',label:'静止摩擦力 f',x:-f.friction,y:0},{key:'normal',label:'垂直抗力 N',x:0,y:-f.N}];
+ if(state.scene==='pendulum')return [g,{key:'tension',label:'張力 T',x:-f.T*Math.sin(f.ang),y:-f.T*Math.cos(f.ang)}];
+ return [g,{key:'normal',label:'垂直抗力 N',x:-f.N*Math.sin(f.beta),y:-f.N*Math.cos(f.beta)}];
+}
+function renderComposition(f){
+ const exact=state.vectorMethod==='exact'&&state.show.net&&f.valid;
+ el('compositionPanel').classList.toggle('hidden',!exact);
+ if(!exact)return;
+ const fs=compositionForces(f), step=Math.min(state.compositionStep,fs.length+1);
+ let sumX=0,sumY=0;for(const force of fs){sumX+=force.x;sumY+=force.y;}
+ // e.g. mg + N = inward force. This vector is exactly the sum, no clipping or minimum length.
+ const magnitude=Math.hypot(sumX,sumY),maxForce=Math.max(f.net,...fs.map(v=>Math.hypot(v.x,v.y)));
+ const commonScale=93/Math.max(maxForce,1e-12); // same scale for every arrow
+ const x0=340,y0=112;
+ let x=x0,y=y0;
+ let svg=`<rect width="580" height="260" fill="#ffffff"/>`;
+ svg+=`<path d="M27 112 H555" stroke="#dce8f0" stroke-dasharray="4 5"/><path d="M340 17 V236" stroke="#e8eff5" stroke-dasharray="4 5"/>`;
+ svg+=`<text x="35" y="29" font-size="13" font-weight="800" fill="#526f88">← 円運動の中心方向</text><text x="353" y="27" font-size="11" fill="#7690a4">↑ 鉛直上方</text>`;
+ const segment=(ax,ay,bx,by,color,label,width=4.5,isNet=false)=>{
+  const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);if(len<1e-7)return '';
+  const nx=dx/len,ny=dy/len,px=-ny,py=nx;
+  const head=Math.min(isNet?15:11,Math.max(4,len*.28)),half=isNet?6.5:5;
+  const tip=`${bx},${by}`,baseX=bx-nx*head,baseY=by-ny*head;
+  return `<g><line x1="${ax}" y1="${ay}" x2="${baseX}" y2="${baseY}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/><path d="M${tip} L${baseX+px*half},${baseY+py*half} L${baseX-px*half},${baseY-py*half} Z" fill="${color}"/>`+
+  `<text x="${(ax+bx)*.5+px*(label.includes('重力')?-22:label.includes('垂直抗力')||label.includes('張力')?-26:16)}" y="${(ay+by)*.5+py*(label.includes('重力')?-22:label.includes('垂直抗力')||label.includes('張力')?-26:16)}" fill="${color}" font-size="12" font-weight="800" text-anchor="middle" stroke="#fff" stroke-width="4" paint-order="stroke">${escapeHtml(label)}</text></g>`;
+ };
+ const labels=[];
+ fs.forEach((force,i)=>{const xx=x+force.x*commonScale,yy=y+force.y*commonScale;
+  if(step>i)svg+=segment(x,y,xx,yy,palette[force.key],force.label);
+  labels.push(`${i+1}. ${force.label}`);x=xx;y=yy;
+ });
+ if(step>fs.length){svg+=segment(x0,y0,x0+sumX*commonScale,y0+sumY*commonScale,palette.net,'合力',6,true);
+   svg+=`<rect x="24" y="218" width="528" height="30" rx="7" fill="#f9edf0"/><text x="288" y="239" fill="#aa344b" text-anchor="middle" font-size="13" font-weight="850">合力 = ${fmt(magnitude,2)} N = mv²/r = ${fmt(f.net,2)} N</text>`;
+ }else{
+   svg+=`<text x="290" y="234" fill="#57738b" text-anchor="middle" font-size="12">順番に力をつなぎ、最後に赤い合力を確認しましょう。</text>`;
+ }
+ svg+=`<circle cx="${x0}" cy="${y0}" r="4.5" fill="#49627a"/>`;
+ el('compositionSvg').innerHTML=svg;
+ el('compositionStepLabel').textContent=step<=fs.length?`手順 ${step}/${fs.length+1}：${step?labels[step-1]+' まで表示':'まず力を並べる'}`:`手順 ${fs.length+1}/${fs.length+1}：赤い合力がベクトル和`;
+ el('composeBack').disabled=step===0;el('composeNext').disabled=step===fs.length+1;
+ el('compositionCaption').textContent=`この図ではすべての力を共通の縮尺（${fmt(commonScale,3)} px/N）で描き、矢印の始点を平行移動しています。位置は合成のための模式図。実際の重心・接点は上の断面図で確認してください。`;
+}
+function updateNumbers(f){el('numbers').classList.toggle('hidden',!state.numbers);el('formula').classList.toggle('hidden',!state.numbers);if(!state.numbers)return;
+ const vals=[['質量',fmt(f.m,1),'kg'],['速さ',fmt(f.v,2),'m/s'],['半径',fmt(f.r,2),'m'],['必要な中心向き合力',fmt(f.net,1),'N']];
+ el('numbers').innerHTML=vals.map(x=>`<div class="metric"><div class="key">${x[0]}</div><div class="val">${x[1]}<span class="unit">${x[2]}</span></div></div>`).join('');
+ const id=state.scene;let eq={car:`ばねの弾性力 F=k(r−L₀) = ${fmt(f.elastic,2)} N = mv²/r、速さ v=${fmt(f.v,2)} m/s。鉛直方向は N=mg=${fmt(f.g,2)} N`,pendulum:`T cosθ = mg、T sinθ = mv²/r = ${fmt(f.net,2)} N`,bike:!f.valid?`必要な摩擦力 ${fmt(f.net,1)} N ＞ 最大静止摩擦力 μmg = ${fmt(f.mu*f.g,1)} N ：円運動不可`:`必要な摩擦力 f = mv²/r = ${fmt(f.net,1)} N ≦ μmg = ${fmt(f.mu*f.g,1)} N、傾き = ${fmt(f.lean*180/Math.PI,1)}°`,bobsled:`N cosβ = mg、N sinβ = mv²/r = ${fmt(f.net,1)} N、v = √(rg tanβ)`}[id];
+ el('formula').textContent=`円運動の運動方程式：ΣF（中心方向）= mv²/r。 ${eq}`;
+}
+function updateNetFocus(f){
+ const active=state.show.net&&f.valid&&state.vectorMethod==='emphasis';
+ el('netFocus').classList.toggle('hidden',!active);
+ if(!active)return;
+ el('netFocusValue').innerHTML=`${fmt(f.net,2)} <small>N</small>`;
+ el('netFocusExplain').textContent=`mv²/r = ${fmt(f.m*f.v*f.v/f.r,2)} N。方向を見やすくした模式図です。赤矢印は合力を示し、新しい力を追加していません。${state.scene==='pendulum'?'円錐振り子は斜め投影。合力は実際には水平で、奥・手前向きのときは×・●で示します。':''}`;
+ const len=Math.min(113,Math.max(43,40*state.netScale));
+ el('netFocusSvg').innerHTML=`<rect x="0" y="0" width="240" height="92" rx="9" fill="#fff1f3"/>`+
+ `<circle cx="54" cy="41" r="5" fill="#71879d"/><text x="54" y="70" font-size="11" text-anchor="middle" fill="#8798a9">中心</text>`+
+ `<circle cx="199" cy="41" r="10" fill="#e99d47" stroke="#b46e30" stroke-width="1.6"/>`+
+ `<line x1="199" y1="41" x2="${199-len}" y2="41" stroke="#fff" stroke-width="13" stroke-linecap="round"/>`+
+ `<path d="M199 41 L${199-len+13} 41" stroke="${palette.net}" stroke-width="7" stroke-linecap="round"/>`+
+ `<path d="M${199-len} 41 L${199-len+17} 31 L${199-len+17} 51 Z" fill="${palette.net}"/>`+
+ `<text x="137" y="21" font-size="13" font-weight="800" text-anchor="middle" fill="#b62e49">合力</text>`+
+ `<text x="120" y="85" font-size="10" text-anchor="middle" fill="#9a6470">中心を左にそろえた拡大模式図</text>`;
+}
+function render(){
+ const f=physics(),a=eTop(f),b=eSection(f);
+ el('topSvg').innerHTML=a.html;el('sideSvg').innerHTML=b.html;
+ el('topSvg').dataset.x=a.x;el('topSvg').dataset.y=a.y;
+ el('sideSvg').dataset.x=b.x;el('sideSvg').dataset.y=b.y;
+ el('sideSvg').dataset.cx=b.contact?b.contact[0]:'';el('sideSvg').dataset.cy=b.contact?b.contact[1]:'';
+ // individual forces behind, net on top. No visual enlargement in exact mode.
+ for(const svg of [el('topSvg'),el('sideSvg')]){
+   const net=svg.querySelector('.net-vector');if(net)svg.appendChild(net);
+ }
+ updateNumbers(f);renderComposition(f);updateNetFocus(f);
+ const exact=state.vectorMethod==='exact';
+ el('netScaleLabel').textContent=state.netScale+' 倍';
+ el('netScale').disabled=exact;
+ el('netControls').classList.toggle('inactive',exact);
+ el('netScaleNote').textContent=exact?'合成モードでは赤い矢印にも他の力と同じ倍率を使用します。独立倍率は使用しません。':`強調モード：赤だけ${state.netScale}倍。読みやすさのための表示長の補正があります（長さの比較には使えません）。`;
+ el('methodNote').textContent=exact?'合成モード：共通縮尺・最小長なし。下の「力をつなぐ」図で赤い矢印がベクトル和と一致します。':'強調モード：赤だけ拡大します。向きを観察するための表示で、矢印の長さからベクトル和を読み取らないでください。';
+ const showKeys=Object.keys(state.show).filter(k=>state.show[k]);
+ el('legend').innerHTML=showKeys.length?showKeys.filter(k=>k!=='center').map(k=>{const lab=toggles.find(e=>e[0]===k);return `<span><i style="background:${lab[2]}"></i>${lab[1]}</span>`;}).join(''):'<span>力の矢印は表示オプションで切り替えられます。</span>';
+ syncControls();
+}
+function setPlaying(on){if(on&&!physics().valid)return;if(on&&state.draw)state.draw=false;state.running=on;state.lastFrame=performance.now();syncControls();}
+function frame(now){if(state.running){const dt=Math.min(.08,Math.max(0,(now-state.lastFrame)/1000));state.phase=(state.phase+dt*physics().omega*state.rate)%TAU;render();}state.lastFrame=now;requestAnimationFrame(frame);}
+function eventPoint(evt,svg){const rect=svg.getBoundingClientRect();const vb=svg.viewBox.baseVal;return {x:(evt.clientX-rect.left)*vb.width/rect.width+vb.x,y:(evt.clientY-rect.top)*vb.height/rect.height+vb.y};}
+function pointerDown(evt,panel){
+ if(!state.draw)return;
+ const svg=evt.currentTarget,pt=eventPoint(evt,svg),gr=evt.target.closest('.prediction'),idx=gr?Number(gr.dataset.index):-1;
+ const ox=Number(svg.dataset.x),oy=Number(svg.dataset.y);
+ let handle='end';state.selected=idx;
+ if(idx<0){
+  let sx=pt.x,sy=pt.y;
+  const cx=Number(svg.dataset.cx),cy=Number(svg.dataset.cy);
+  if(svg.dataset.cx!==''&&Math.hypot(pt.x-cx,pt.y-cy)<30){sx=cx;sy=cy;}
+  else if(Math.hypot(pt.x-ox,pt.y-oy)<35){sx=ox;sy=oy;}
+  const a={panel,sx:sx-ox,sy:sy-oy,ex:sx-ox+2,ey:sy-oy-2,name:el('predType').value};
+  state.arrows.push(a);state.selected=state.arrows.length-1;
+ }else{handle=evt.target.getAttribute('data-handle')||'end';}
+ state.drag={panel,index:state.selected,handle,pid:evt.pointerId};svg.setPointerCapture(evt.pointerId);render();evt.preventDefault();
+}
+function pointerMove(evt,panel){
+ if(!state.drag||state.drag.panel!==panel||state.drag.pid!==evt.pointerId)return;
+ const svg=evt.currentTarget,pt=eventPoint(evt,svg),a=state.arrows[state.drag.index];if(!a)return;
+ const ox=Number(svg.dataset.x),oy=Number(svg.dataset.y);
+ if(state.drag.handle==='start'){a.sx=pt.x-ox;a.sy=pt.y-oy;}
+ else {a.ex=pt.x-ox;a.ey=pt.y-oy;}
+ render();evt.preventDefault();
+}
+function pointerUp(evt){
+ if(state.drag&&state.drag.pid===evt.pointerId){
+  const a=state.arrows[state.drag.index];
+  if(a&&Math.hypot(a.ex-a.sx,a.ey-a.sy)<10){a.ex=a.sx-64;a.ey=a.sy;}
+  state.drag=null;render();
+ }
+}
+
+function paramChange(t){const key=t.dataset.param;if(!key)return;P[state.scene][key]=Number(t.value);if(!physics().valid)state.running=false;const param=s().params.find(x=>x[0]===key);el(`${key}Val`).textContent=fmt(P[state.scene][key],param[5]<.1?2:param[5]>=1?0:1)+' '+param[2];render();}
+function init(){renderTabs();updateSceneInfo();updateParams();updateToggles();
+ el('tabs').addEventListener('click',e=>{const t=e.target.closest('[data-scene]');if(t)switchScene(t.dataset.scene);});
+ el('paramControls').addEventListener('input',e=>paramChange(e.target));
+ el('toggles').addEventListener('change',e=>{const k=e.target.dataset.toggle;if(!k)return;state.show[k]=e.target.checked;state.displayMode='custom';el('displayMode').value='custom';render();});
+ el('displayMode').addEventListener('change',e=>applyDisplayMode(e.target.value));
+ el('netScale').addEventListener('change',e=>{state.netScale=Number(e.target.value);render();});
+ document.querySelectorAll('input[name="vectorMethod"]').forEach(r=>r.addEventListener('change',e=>{state.vectorMethod=e.target.value;state.compositionStep=99;render();}));
+ el('composeBack').addEventListener('click',()=>{state.compositionStep=Math.max(0,Math.min(state.compositionStep,compositionForces(physics()).length+1)-1);render();});
+ el('composeNext').addEventListener('click',()=>{state.compositionStep=Math.min(compositionForces(physics()).length+1,state.compositionStep+1);render();});
+ el('playBtn').addEventListener('click',()=>setPlaying(!state.running));
+ el('stepBtn').addEventListener('click',()=>{if(!physics().valid)return;setPlaying(false);state.phase=(state.phase+physics().omega/24)%TAU;render();});
+ el('resetBtn').addEventListener('click',()=>{setPlaying(false);state.phase=0;state.draw=false;state.arrows=[];state.selected=-1;render();});
+ el('phaseRange').addEventListener('input',e=>{if(state.running)return;state.phase=Number(e.target.value)*Math.PI/180;render();});
+ el('playSpeed').addEventListener('change',e=>{state.rate=Number(e.target.value);});
+ el('showNumbers').addEventListener('change',e=>{state.numbers=e.target.checked;render();});
+ el('forceScale').addEventListener('input',e=>{state.forceScale=Number(e.target.value);el('forceScaleLabel').textContent=fmt(state.forceScale,1)+' 倍';render();});
+ el('drawMode').addEventListener('click',()=>{state.draw=!state.draw;if(state.draw){setPlaying(false);}state.selected=-1;render();});
+ el('predType').addEventListener('change',e=>{if(state.selected>=0&&state.arrows[state.selected]){state.arrows[state.selected].name=e.target.value;render();}});
+ el('undoBtn').addEventListener('click',()=>{state.arrows.pop();state.selected=-1;render();});
+ el('deleteBtn').addEventListener('click',()=>{if(state.selected<0)return;state.arrows.splice(state.selected,1);state.selected=-1;render();});
+ el('clearBtn').addEventListener('click',()=>{state.arrows=[];state.selected=-1;render();});
+ for(const [id,panel] of [['topSvg','top'],['sideSvg','side']]){const svg=el(id);svg.addEventListener('pointerdown',e=>pointerDown(e,panel));svg.addEventListener('pointermove',e=>pointerMove(e,panel));svg.addEventListener('pointerup',pointerUp);svg.addEventListener('pointercancel',pointerUp);}
+ render();requestAnimationFrame(frame);
+}
+init();
+</script>
+</body></html>
